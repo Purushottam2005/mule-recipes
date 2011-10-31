@@ -1,7 +1,0 @@
-<?xml version='1.0'?>
-	<!DOCTYPE PZMAP PUBLIC "http://flatpack.sourceforge.net/flatpack.dtd" >
-	<PZMAP>
-	        <COLUMN name="FirstName" />
-	        <COLUMN name="LastName" />
-	        <COLUMN name="AccountId" />	        
-	</PZMAP> 
