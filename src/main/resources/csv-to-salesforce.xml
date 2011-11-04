@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+      xmlns:salesforce="http://www.mulesoft.org/schema/mule/sfdc"
+      xmlns:recipe="http://www.mulesoft.org/schema/mule/recipe"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:datapack="http://www.mulesoft.org/schema/mule/datapack"
+      xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/3.2/mule-file.xsd
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/4.0/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/datapack http://www.mulesoft.org/schema/mule/datapack/3.2/mule-datapack.xsd ">
+
+    <description>
+        <recipe:Title>Import CSV data into SalesForce</recipe:Title>
+        <recipe:Author name="Ross Mason" muleCommunityId="ross"/>
+        <recipe:Info level="Beginner" tags="cvs, salesforce, file"/>
+        <recipe:Problem>
+            You have a CSV or general text delimited file of data that you need to import into SalesForce. This could be
+            contacts, accounts or any other type of data.
+        </recipe:Problem>
+
+        <recipe:Solution>
+            We're going to create new contacts for each row in our CSV file.
+            Use a file (or FTP) endpoint to listen to a directory where the CSV file is dropped.
+            Use the SalesForce connector to create new contacts and
+            the datapack module to provide simple mapping rules to filed n
+            Imports CSV data into SalesForce creating a new customer
+            record for each row.
+        </recipe:Solution>
+
+        <recipe:Notes>
+            1. If you'll need to create two directories on your local machine if you want to run this: '/temp/csv/in' and '/temp/csv/out'
+        </recipe:Notes>
+
+        <recipe:Dependency moduleName="mule-module-datapack" package="org.mule.modules"/>
+    </description>
+
+    <!-- Using the SalesForce cloud connector, you'll need to specify your credentials.  These can be stored
+    outside of this config in a file called mule-app.properties-->
+
+    <salesforce:config name="mySalesforce" username="${salesforce.username}"
+                       password="${salesforce.password}" securityToken="${salesforce.security.token}"/>
+
+    <flow name="CSVtoSalesforceFlow">
+
+        <composite-source>
+            <!-- listen to a file directory, once the file is read, move it to another directory.  The moveTo
+            Pattern determines the output filename of the file moved -->
+            <file:inbound-endpoint path="/temp/csv/in" moveToPattern="#[header:originalFilename].#[function:timestamp]"
+                                   moveToDirectory="/temp/csv/out"/>
+
+            <!-- To listen on an FTP location just add an FTP endpoint-->
+            <!--<ftp:inbound-endpoint host="xxx" port="21" user="xxx" password="xxx"/>-->
+        </composite-source>
+
+        <!-- Parse the CSV data into a List of Maps, this si a generic format that Mule can use to
+        process tabular data -->
+        <datapack:delimited-to-maps-transformer delimiter="COMMA" lineDelimiter="CR"/>
+
+        <logger message="#[payload:]" level="INFO"/>
+
+        <!-- The CsV file contains the Header information and in this case the CSV header names and the
+          Salesforce Contant field names match, but you still need to supply a mapping rule for each field -->
+        <datapack:mapping-transformer>
+            <datapack:mapping destinationColumn="FirstName" sourceColumn="FirstName"/>
+            <datapack:mapping destinationColumn="LastName" sourceColumn="LastName"/>
+        </datapack:mapping-transformer>
+
+        <!-- we are going to create a new Contact for each row in the CSV file -->
+        <salesforce:create config-ref="mySalesforce" type="Contact">
+            <!-- this will automatically do a batch upload, the format of the data is a List of Maps -->
+            <salesforce:objects ref="#[payload:]"/>
+        </salesforce:create>
+
+        <logger message="#[payload:]" level="INFO"/>
+    </flow>
+</mule>

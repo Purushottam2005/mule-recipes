@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns="http://www.mulesoft.org/schema/mule/recipe"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.mulesoft.org/schema/mule/recipe"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+
+    <xsd:element name="Title" type="xsd:string">
+        <xsd:annotation>
+            <xsd:documentation>
+                Based upon the configuration generate a fixed width output.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="Info">
+        <xsd:annotation>
+            <xsd:documentation>
+                Contains information about the target user level of this recipe and tags that help to categorise it.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:attribute name="level" use="required">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="Beginner"/>
+                        <xsd:enumeration value="Intermediate"/>
+                        <xsd:enumeration value="Advanced"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="tags" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A comma separate list of tags for this post i.e. 'csv, ftp, salesforce'
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="Author">
+        <xsd:annotation>
+            <xsd:documentation>
+                Based upon the configuration generate a fixed width output.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:attribute name="name" type="xsd:string" use="required"/>
+            <xsd:attribute name="muleCommunityId" type="xsd:string" use="optional"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="Problem" type="xsd:string">
+        <xsd:annotation>
+            <xsd:documentation>
+                A very short description of what the problem is. Usually good to give a concrete example.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="Solution" type="xsd:string">
+        <xsd:annotation>
+            <xsd:documentation>
+                A short description of the solution using Mule. Note that the code must contain comments about
+                what it is doing, this text should call out any highlights, benefits or things to watch out for.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="Notes" type="xsd:string">
+        <xsd:annotation>
+            <xsd:documentation>
+                Any notes about running the recipe
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="Dependency" type="dependencyType">
+
+    </xsd:element>
+
+    <xsd:complexType name="dependencyType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Lists any external dependencies that the recipe uses.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:attribute name="moduleName" use="required">
+            <xsd:annotation>
+                <xsd:documentation>Refers to the mule module name, which is the same as the Maven artifactId
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="package" use="required">
+            <xsd:annotation>
+                <xsd:documentation>refers to the Maven package name</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+</xsd:schema>
